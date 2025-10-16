@@ -1,1 +1,2 @@
 ner/data/ner.csv filter=lfs diff=lfs merge=lfs -text
+ner/model/*.pt filter=lfs diff=lfs merge=lfs -text
