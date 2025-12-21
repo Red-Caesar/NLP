@@ -1,2 +1,4 @@
 .venv
 ner/nltk_data/
+compression/eval_results/
+compression/models
