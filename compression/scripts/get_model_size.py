@@ -1,17 +1,21 @@
 import os
+import json
 from pathlib import Path
 import pandas as pd
 import re
 
 LAB_DIR = Path(__file__).parent.parent.resolve()
-MODELS_DIR = LAB_DIR / "models" / "quantized"
+QUANTIZED_DIR = LAB_DIR / "models" / "quantized"
+FINETUNED_DIR = LAB_DIR / "models" / "finetuned"
 HF_CACHE_DIR = Path.home() / ".cache" / "huggingface" / "hub"
 
 def extract_quantization_type(folder_name):
-    if "FP8" in folder_name or "fp8" in folder_name:
+    if "FP8" in folder_name:
         return "fp8"
-    elif "AWQ" in folder_name or "awq" in folder_name:
+    elif "AWQ" in folder_name:
         return "awq"
+    elif "INT4" in folder_name:
+        return "int4"
     return "original"
 
 def extract_dataset(folder_name):
@@ -29,14 +33,25 @@ def extract_seq_len_and_calibration(folder_name):
         return seq_len, calibration_samples
     return None, None
 
-def get_safetensors_size(model_path):
-    total_size = 0
-    for root, dirs, files in os.walk(model_path):
-        for file in files:
-            if file.endswith('.safetensors'):
-                file_path = os.path.join(root, file)
-                total_size += os.path.getsize(file_path)
-    return total_size
+def get_model_size_from_index(model_path):
+    index_files = [
+        "model.safetensors.index.json",
+        "pytorch_model.bin.index.json",
+        "model.index.json"
+    ]
+    
+    for index_file in index_files:
+        index_path = model_path / index_file
+        if index_path.exists():
+            try:
+                with open(index_path, 'r') as f:
+                    data = json.load(f)
+                    if "metadata" in data and "total_size" in data["metadata"]:
+                        return data["metadata"]["total_size"]
+            except Exception as e:
+                print(f"Error reading {index_path}: {e}")
+    return None
+
 
 def bytes_to_gb(bytes_size):
     return bytes_size / (1024 ** 3)
@@ -45,9 +60,17 @@ def get_original_model_size():
     model_cache_name = "models--Qwen--Qwen3-8B"
     model_cache_path = HF_CACHE_DIR / model_cache_name
     
-    if model_cache_path.exists():
-        size_bytes = get_safetensors_size(model_cache_path)
-        return size_bytes
+    if not model_cache_path.exists():
+        return None
+    
+    snapshots_dir = model_cache_path / "snapshots"
+    
+    for snapshot_dir in snapshots_dir.iterdir():
+        if snapshot_dir.is_dir():
+            size_bytes = get_model_size_from_index(snapshot_dir)
+            if size_bytes:
+                return size_bytes
+    
     return None
 
 def calculate_model_sizes():
@@ -57,42 +80,49 @@ def calculate_model_sizes():
     if original_size:
         size_gb = bytes_to_gb(original_size)
         data.append({
-            'model_quantization': 'original',
-            'dataset': None,
-            'seq_len': None,
-            'calibration_samples': None,
-            'size_gb': round(size_gb, 2),
-            'size_bytes': original_size,
+            "model_name": "Qwen3-8B",
+            "model_quantization": "original",
+            "dataset": None,
+            "seq_len": None,
+            "calibration_samples": None,
+            "size_gb": round(size_gb, 2),
+            "size_bytes": original_size,
         })
     else:
         print(f"Original model not found in cache: {HF_CACHE_DIR}")
     
-    if not MODELS_DIR.exists():
-        print(f"Models directory not found: {MODELS_DIR}")
-        return pd.DataFrame(data)
-    
-    for model_folder in os.listdir(MODELS_DIR):
-        model_path = MODELS_DIR / model_folder
+    for models_dir in [QUANTIZED_DIR, FINETUNED_DIR]:
+        if not models_dir.exists():
+            print(f"Models directory not found: {models_dir}")
+            continue
         
-        if model_path.is_dir():
-            quantization_type = extract_quantization_type(model_folder)
-            dataset = extract_dataset(model_folder)
-            seq_len, calibration_samples = extract_seq_len_and_calibration(model_folder)
+        for model_folder in os.listdir(models_dir):
+            model_path = models_dir / model_folder
             
-            size_bytes = get_safetensors_size(model_path)
-            size_gb = bytes_to_gb(size_bytes)
-            
-            data.append({
-                'model_quantization': quantization_type,
-                'dataset': dataset,
-                'seq_len': seq_len,
-                'calibration_samples': calibration_samples,
-                'size_gb': round(size_gb, 2),
-                'size_bytes': size_bytes,
-            })
+            if model_path.is_dir() and model_folder != "LoRA":
+                quantization_type = extract_quantization_type(model_folder)
+                dataset = extract_dataset(model_folder)
+                seq_len, calibration_samples = extract_seq_len_and_calibration(model_folder)
+                
+                size_bytes = get_model_size_from_index(model_path)
+                
+                if size_bytes:
+                    size_gb = bytes_to_gb(size_bytes)
+                    
+                    data.append({
+                        "model_name": model_folder,
+                        "model_quantization": quantization_type,
+                        "dataset": dataset,
+                        "seq_len": seq_len,
+                        "calibration_samples": calibration_samples,
+                        "size_gb": round(size_gb, 2),
+                        "size_bytes": size_bytes,
+                    })
+                else:
+                    print(f"Warning: Could not determine size for {model_folder}")
     
     df = pd.DataFrame(data)
-    df = df.sort_values(by=['size_bytes'])
+    df = df.sort_values(by=["size_bytes"])
     
     return df
 

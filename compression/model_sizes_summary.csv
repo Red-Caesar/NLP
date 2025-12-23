@@ -1,0 +1,10 @@
+model_name,model_quantization,dataset,seq_len,calibration_samples,size_gb,size_bytes
+Qwen3-8B-INT4,int4,,,,5.76,6179874816
+Qwen3-8B-LoRA-INT4,int4,,,,5.76,6179874816
+Qwen3-8B-AWQ-common-dataset-1024-256,awq,common,1024.0,256.0,8.1,8696946624
+Qwen3-8B-AWQ-mmlu-dataset-2048-256,awq,mmlu,2048.0,256.0,8.1,8696946624
+Qwen3-8B-AWQ-common-dataset-512-128,awq,common,512.0,128.0,8.1,8696946624
+Qwen3-8B-AWQ-mmlu-dataset-512-128,awq,mmlu,512.0,128.0,8.1,8696946624
+Qwen3-8B-FP8-common-dataset-512-128,fp8,common,512.0,128.0,11.11,11925641184
+Qwen3-8B-FP8-mmlu-dataset-512-128,fp8,mmlu,512.0,128.0,11.11,11925641184
+Qwen3-8B,original,,,,15.26,16381470720

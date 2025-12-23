@@ -1,0 +1,10 @@
+model_name,model_quantization,finetuned,dataset,seq_len,calibration_samples,size_gb,mmlu_score,compression_ratio,performance_drop,lab_score
+Qwen3-8B-INT4,int4,no,,,,5.76,0.7090909090909091,2.65,0.0297,2.57
+Qwen3-8B-LoRA-INT4,int4,yes,,,,5.76,0.486013986013986,2.65,0.3349,1.99
+Qwen3-8B-AWQ-mmlu-dataset-512-128,awq,yes,mmlu,512.0,128.0,8.1,0.7202797202797203,1.88,0.0144,1.86
+Qwen3-8B-AWQ-common-dataset-512-128,awq,no,common,512.0,128.0,8.1,0.7167832167832168,1.88,0.0191,1.85
+Qwen3-8B-AWQ-common-dataset-1024-256,awq,no,common,1024.0,256.0,8.1,0.7125874125874125,1.88,0.0249,1.84
+Qwen3-8B-AWQ-mmlu-dataset-512-128,awq,no,mmlu,512.0,128.0,8.1,0.713986013986014,1.88,0.023,1.84
+Qwen3-8B-AWQ-mmlu-dataset-2048-256,awq,no,mmlu,2048.0,256.0,8.1,0.7076923076923077,1.88,0.0316,1.83
+Qwen3-8B-FP8-mmlu-dataset-512-128,fp8,no,mmlu,512.0,128.0,11.11,0.7237762237762237,1.37,0.0096,1.36
+Qwen3-8B-FP8-common-dataset-512-128,fp8,no,common,512.0,128.0,11.11,0.7223776223776224,1.37,0.0115,1.36

@@ -10,17 +10,17 @@ def calculate_metrics():
     df_sizes = pd.read_csv(sizes_path)
     df_scores = pd.read_csv(scores_path)
     
-    df_scores = df_scores[df_scores['limit'] == 1.0]
+    df_scores = df_scores[df_scores['limit'] == 0.1] #change to 1.0 for full analysis
     
     df_merged = pd.merge(
         df_scores, 
         df_sizes,
-        on=['model_quantization', 'dataset', 'seq_len', 'calibration_samples'],
+        on=['model_name', 'model_quantization', 'dataset', 'seq_len', 'calibration_samples'],
         how='inner'
     )
     
     original_size = df_sizes[df_sizes['model_quantization'] == 'original']['size_bytes'].values[0]
-    original_mmlu = df_scores[df_scores['model_quantization'] == 'original']['mmlu_score'].values[0]
+    original_mmlu = df_scores[df_scores['model_name'] == 'Qwen3-8B']['mmlu_score'].values[0]
     
     df_compressed = df_merged[df_merged['model_quantization'] != 'original'].copy()
     
@@ -29,7 +29,7 @@ def calculate_metrics():
     df_compressed['lab_score'] = df_compressed['compression_ratio'] / (1 + df_compressed['performance_drop'])
     
     df_result = df_compressed[[
-        'model_quantization', 'dataset', 'seq_len', 'calibration_samples',
+        'model_name', 'model_quantization', 'finetuned', 'dataset', 'seq_len', 'calibration_samples',
         'size_gb', 'mmlu_score', 'compression_ratio', 'performance_drop', 'lab_score'
     ]].copy()
     

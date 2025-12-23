@@ -3,3 +3,5 @@ lm_eval[api]
 datasets
 transformers
 llmcompressor
+unsloth
+torchao

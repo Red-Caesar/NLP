@@ -1,0 +1,12 @@
+model_name,model_quantization,dataset,seq_len,calibration_samples,finetuned,limit,date,mmlu_score
+Qwen3-8B,,,,,no,0.1,2025-12-19,0.7307692307692307
+Qwen3-8B,,,,,no,1.0,2025-12-19,0.7298105682951147
+Qwen3-8B-FP8-mmlu-dataset-512-128,fp8,mmlu,512,128,no,0.1,2025-12-23,0.7237762237762237
+Qwen3-8B-FP8-common-dataset-512-128,fp8,common,512,128,no,0.1,2025-12-23,0.7223776223776224
+Qwen3-8B-AWQ-mmlu-dataset-512-128,awq,mmlu,512,128,yes,0.1,2025-12-23,0.7202797202797203
+Qwen3-8B-AWQ-common-dataset-512-128,awq,common,512,128,no,0.1,2025-12-23,0.7167832167832168
+Qwen3-8B-AWQ-mmlu-dataset-512-128,awq,mmlu,512,128,no,0.1,2025-12-23,0.713986013986014
+Qwen3-8B-AWQ-common-dataset-1024-256,awq,common,1024,256,no,0.1,2025-12-23,0.7125874125874125
+Qwen3-8B-INT4,int4,,,,no,0.1,2025-12-23,0.7090909090909091
+Qwen3-8B-AWQ-mmlu-dataset-2048-256,awq,mmlu,2048,256,no,0.1,2025-12-23,0.7076923076923077
+Qwen3-8B-LoRA-INT4,int4,,,,yes,0.1,2025-12-23,0.486013986013986
