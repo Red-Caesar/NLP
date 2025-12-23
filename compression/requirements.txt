@@ -1,0 +1,7 @@
+vllm==0.11.0
+lm_eval[api]
+datasets
+transformers
+llmcompressor
+unsloth
+torchao
